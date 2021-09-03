@@ -169,3 +169,10 @@ if [ $? -eq 0 ]; then
         temclear; fail;
         exit 1	    
 fi
+
+cp -f ${HOST_IP}.crt localhost.crt
+cp -f ${HOST_IP}.key localhost.key
+cat ${HOST_IP}.crt ${HOST_IP}.key > agent.pem
+cat ${HOST_IP}.crt ${HOST_IP}.key > wss.pem
+cp -f buzzworks.crt cafiles.pem
+
