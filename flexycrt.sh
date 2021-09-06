@@ -170,9 +170,11 @@ if [ $? -eq 0 ]; then
         exit 1	    
 fi
 
-cp -f ${HOST_IP}.crt localhost.crt
-cp -f ${HOST_IP}.key localhost.key
-cat ${HOST_IP}.crt ${HOST_IP}.key > agent.pem
-cat ${HOST_IP}.crt ${HOST_IP}.key > wss.pem
-cp -f buzzworks.crt cafiles.pem
+cp -f ${HOST_IP}.crt /etc/pki/tls/certs/localhost.crt
+cp -f ${HOST_IP}.key /etc/pki/tls/private/localhost.key
+cp -f ${HOST_IP}.csr /etc/pki/tls/private/
+install -d /etc/freeswitch/tls
+cat ${HOST_IP}.crt ${HOST_IP}.key > /etc/freeswitch/tls/agent.pem
+cat ${HOST_IP}.crt ${HOST_IP}.key > /etc/freeswitch/tls/wss.pem
+cp -f buzzworks.crt /etc/freeswitch/tls/cafiles.pem
 
