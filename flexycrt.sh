@@ -161,6 +161,15 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+cp -f ${HOST_IP}.crt /etc/pki/tls/certs/localhost.crt
+cp -f ${HOST_IP}.key /etc/pki/tls/private/localhost.key
+cp -f ${HOST_IP}.csr /etc/pki/tls/private/
+install -d /etc/freeswitch/tls
+cat ${HOST_IP}.crt ${HOST_IP}.key > /etc/freeswitch/tls/agent.pem
+cat ${HOST_IP}.crt ${HOST_IP}.key > /etc/freeswitch/tls/wss.pem
+cp -f buzzworks.crt /etc/freeswitch/tls/cafiles.pem
+
+
 if [ $? -eq 0 ]; then
 	    echo;echo -e "${Cy}Certificate${CO}\t\t[ ${Gr}${Verify}${CO} ]";echo;
 	    temclear   
@@ -169,12 +178,4 @@ if [ $? -eq 0 ]; then
         temclear; fail;
         exit 1	    
 fi
-
-cp -f ${HOST_IP}.crt /etc/pki/tls/certs/localhost.crt
-cp -f ${HOST_IP}.key /etc/pki/tls/private/localhost.key
-cp -f ${HOST_IP}.csr /etc/pki/tls/private/
-install -d /etc/freeswitch/tls
-cat ${HOST_IP}.crt ${HOST_IP}.key > /etc/freeswitch/tls/agent.pem
-cat ${HOST_IP}.crt ${HOST_IP}.key > /etc/freeswitch/tls/wss.pem
-cp -f buzzworks.crt /etc/freeswitch/tls/cafiles.pem
 
