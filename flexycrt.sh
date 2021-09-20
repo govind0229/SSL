@@ -3,6 +3,7 @@
 #   Script  :   OpenSSL self-signed certificate            	            #
 #   Use     :   Create Self-signed Server Certificate                       #
 #   Author  :   Buzzworks <Govind.sharma@flexydial.com>                     #
+#   Version :   Flexy 4.0						    #
 #############################################################################
 set -o nounset
 DEBUG=false
