@@ -170,6 +170,7 @@ cat ${HOST_IP}.crt ${HOST_IP}.key > /usr/local/freeswitch/certs/agent.pem
 cat ${HOST_IP}.crt ${HOST_IP}.key > /usr/local/freeswitch/certs/wss.pem
 cp -f buzzworks.crt /usr/local/freeswitch/certs/cafiles.pem
 
+systemctl restart freeswitch apache2 flexydial-autodial flexydial-cdrd flexydial-fs-dialplan redis ${Null}
 
 if [ $? -eq 0 ]; then
 	    echo;echo -e "${Cy}Certificate${CO}\t\t[ ${Gr}${Verify}${CO} ]";echo;
