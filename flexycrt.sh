@@ -3,7 +3,7 @@
 #   Script  :   OpenSSL self-signed certificate            	            #
 #   Use     :   Create Self-signed Server Certificate                       #
 #   Author  :   Buzzworks <Govind.sharma@flexydial.com>                     #
-#   Version :   Flexy 4.0						    #
+#   Version :   Flexy 4.0 deb						    #
 #############################################################################
 set -o nounset
 DEBUG=false
@@ -162,13 +162,13 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-cp -f ${HOST_IP}.crt /etc/pki/tls/certs/localhost.crt
-cp -f ${HOST_IP}.key /etc/pki/tls/private/localhost.key
-cp -f ${HOST_IP}.csr /etc/pki/tls/private/
-install -d /etc/freeswitch/tls
-cat ${HOST_IP}.crt ${HOST_IP}.key > /etc/freeswitch/tls/agent.pem
-cat ${HOST_IP}.crt ${HOST_IP}.key > /etc/freeswitch/tls/wss.pem
-cp -f buzzworks.crt /etc/freeswitch/tls/cafiles.pem
+cp -f ${HOST_IP}.crt /etc/apache2/certs/flexydial.crt
+cp -f ${HOST_IP}.key /etc/apache2/certs/flexydial.key
+cp -f ${HOST_IP}.csr /etc/apache2/certs/
+install -d /usr/local/freeswitch/certs
+cat ${HOST_IP}.crt ${HOST_IP}.key > /usr/local/freeswitch/certs/agent.pem
+cat ${HOST_IP}.crt ${HOST_IP}.key > /usr/local/freeswitch/certs/wss.pem
+cp -f buzzworks.crt /usr/local/freeswitch/certs/cafiles.pem
 
 
 if [ $? -eq 0 ]; then
