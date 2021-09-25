@@ -33,11 +33,11 @@ fail (){
 
 clear
 echo "--------------------------------------------";
-echo -e "${R}\tOpenSSL self-signed certificate${CO}";
+echo  "${R}\tOpenSSL self-signed certificate${CO}";
 echo "--------------------------------------------";
 
     $DEBUG && echo "${SERIAL}"
-    $DEBUG && echo -e "${Cy}Server IP${CO} ${HOST_IP}";
+    $DEBUG && echo  "${Cy}Server IP${CO} ${HOST_IP}";
 
     if [ ! -f ${HOST_IP}.key ]; then
         openssl genrsa -out $HOST_IP.key 4096 &> /dev/null
@@ -81,13 +81,13 @@ if [ ! -f ${HOST_IP}.csr ]; then
 	CSR=$(openssl req -new  -subj "/C=IN/ST=Mumbai/L=Mumbai/O=Flexydial/OU=Solutions/CN=${HOST_IP}/emailAddress=help@flexydial.com" -config $CONFIG -key $HOST_IP.key -out $HOST_IP.csr &> /dev/null)
 
     if [ $? -ne 0 ]; then 
-        $DEBUG && echo -e "${R} Error CSR ${CO}"
+        $DEBUG && echo  "${R} Error CSR ${CO}"
 	    temclear; fail;
         exit 1
     fi
 
     if [ ! -f buzzworks.key -o ! -f buzzworks.crt ]; then
-        $DEBUG && echo -e "${R} Error Root Certificate.${CO}"
+        $DEBUG && echo  "${R} Error Root Certificate.${CO}"
         temclear; fail;
 	    exit 1
     fi
@@ -149,7 +149,7 @@ EOT
 Certi=$(openssl ca -config buzzworks.config -batch -passin pass:${pass} -out ${HOST_IP}.crt -infiles ${HOST_IP}.csr 2> /dev/null)
 
 if [ $? -ne 0 ]; then
-    $DEBUG && echo -e "${R} Error Server Cert ${CO}"
+    $DEBUG && echo  "${R} Error Server Cert ${CO}"
 	temclear; fail;
     exit 1
 fi
@@ -157,7 +157,7 @@ fi
 Verify=$(openssl verify -check_ss_sig -trusted_first -verify_ip ${HOST_IP} -CAfile buzzworks.crt ${HOST_IP}.crt | awk '{print $2}')
 
 if [ $? -ne 0 ]; then
-    $DEBUG && echo -e "${R} Error Cert Verify ${CO}"
+    $DEBUG && echo  "${R} Error Cert Verify ${CO}"
 	temclear; fail;
     exit 1
 fi
@@ -172,11 +172,11 @@ cp -f buzzworks.crt /usr/local/freeswitch/certs/cafiles.pem
 
 systemctl restart freeswitch apache2 flexydial-autodial flexydial-cdrd flexydial-fs-dialplan redis ${Null}
 
-if [ $? -eq 0 ]; then
-	    echo;echo -e "${Cy}Certificate${CO}\t\t[ ${Gr}${Verify}${CO} ]";echo;
+if [ $? q 0 ]; then
+	    echo;echo  "${Cy}Certificate${CO}\t\t[ ${Gr}${Verify}${CO} ]";echo;
 	    temclear   
     else 
-        echo;echo -e "${Cy}Certificate${CO}\t\t[ ${R}Failed${CO} ]";echo;
+        echo;echo  "${Cy}Certificate${CO}\t\t[ ${R}Failed${CO} ]";echo;
         temclear; fail;
         exit 1	    
 fi
