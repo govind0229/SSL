@@ -2,7 +2,7 @@
 #############################################################################
 #   Script  :   OpenSSL self-signed certificate            	                #
 #   Use     :   Create Self-signed CA Server Certificate                    #
-#   Author  :   Buzzworks <Govind.sharma@flexydial.com>                     #
+#   Author  :   SSL <Govind_sharma@live.com>                     #
 #############################################################################
 set -o nounset
 DEBUG=false
@@ -22,8 +22,8 @@ AP=$(ip route | grep '^default' | grep -oP '(?<=dev )[^ ]*');
 HOST_IP=$(ip a s $AP ${Null}| grep -v "127.0.0.1" | awk '{ if ($1=="inet") { print $2 }}' | sed 's/\/.*//');
 
 temclear(){
-    rm -f buzzworks.config
-    rm -rf buzzworks.db.*
+    rm -f SSL.config
+    rm -rf SSL.db.*
     rm -f ${CONFIG}
 }
 fail (){
@@ -146,7 +146,7 @@ EOT
             exit 1
         fi
 
-        if [ ! -f buzzworks.key -o ! -f buzzworks.crt ]; then
+        if [ ! -f ca.key -o ! -f ca.crt ]; then
             $DEBUG && echo -e "${R} Error Root Certificate.${CO}"
             temclear; fail;
             exit 1
@@ -154,30 +154,30 @@ EOT
     fi
     # Make sure environment exists
 
-    if [ ! -d buzzworks.db.certs ]; then
-        mkdir buzzworks.db.certs
+    if [ ! -d SSL.db.certs ]; then
+        mkdir SSL.db.certs
     fi
 
-    if [ ! -f buzzworks.db.buzzworks.serial ]; then
-        echo "$SERIAL" >buzzworks.db.buzzworks.serial
+    if [ ! -f SSL.db.SSL.serial ]; then
+        echo "$SERIAL" >SSL.db.SSL.serial
     fi
 
-    if [ ! -f buzzworks.db.index ]; then
-        cp /dev/null buzzworks.db.index
+    if [ ! -f SSL.db.index ]; then
+        cp /dev/null SSL.db.index
     fi
 
     # Create the CA requirement to sign the cert
-    cat >buzzworks.config <<EOT
+    cat >SSL.config <<EOT
     [ ca ]
     default_ca              = default_CA
     [ default_CA ]
     dir                     = .
     certs                   = \$dir
-    new_certs_dir           = \$dir/buzzworks.db.certs
-    database                = \$dir/buzzworks.db.index
-    serial                  = \$dir/buzzworks.db.buzzworks.serial
-    certificate             = \$dir/buzzworks.crt
-    private_key             = \$dir/buzzworks.key
+    new_certs_dir           = \$dir/SSL.db.certs
+    database                = \$dir/SSL.db.index
+    serial                  = \$dir/SSL.db.SSL.serial
+    certificate             = \$dir/ca.crt
+    private_key             = \$dir/ca.key
     default_days            = 1825
     default_crl_days        = 30
     default_md              = sha256
@@ -206,7 +206,7 @@ EOT
     IP.3			= ::1
 EOT
 
-    Certi=$(openssl ca -config buzzworks.config -batch -passin pass:${pass} -out ${HOST_IP}.crt -infiles ${HOST_IP}.csr 2> /dev/null)
+    Certi=$(openssl ca -config SSL.config -batch -passin pass:${pass} -out ${HOST_IP}.crt -infiles ${HOST_IP}.csr 2> /dev/null)
 
     if [ $? -ne 0 ]; then
         $DEBUG && echo -e "${R} Error Server Cert ${CO}"
@@ -214,7 +214,7 @@ EOT
         exit 1
     fi
 
-    Verify=$(openssl verify -check_ss_sig -trusted_first -verify_ip ${HOST_IP} -CAfile buzzworks.crt ${HOST_IP}.crt | awk '{print $2}')
+    Verify=$(openssl verify -check_ss_sig -trusted_first -verify_ip ${HOST_IP} -CAfile ca.crt ${HOST_IP}.crt | awk '{print $2}')
 
     if [ $? -ne 0 ]; then
         $DEBUG && echo -e "${R} Error Cert Verify ${CO}"
