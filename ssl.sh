@@ -39,7 +39,7 @@ ca (){
 
     if [ ! -f ca.key ]; then
         echo "";echo -e "$Gr No Root CA key round. Generating CA.key file$CO"
-        openssl genrsa -des3 -out ca.key 4096 -passin pass:${pass}
+        openssl genrsa -des3 -out ca.key -passout pass:${pass} 4096 
         echo ""
     fi
 
@@ -79,7 +79,7 @@ EOT
     
     echo -e "$Gr Generating Self-sign the root CA...$CO"
     echo ""
-    openssl req -new -x509 -days 3650 -config $CONFIG -key ca.key -out ca.crt
+    openssl req -new -x509 -days 3650 -config $CONFIG -key ca.key -out ca.crt --passin pass:${pass}
 
     rm -f $CONFIG
     echo -e "$Gr You Have Successfully Generated CA Certificates$CO"
