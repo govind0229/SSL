@@ -240,5 +240,8 @@ case $ENV in
         ;;  
     Server|server)  
         server  
-        ;;  
+        ;;
+    *)
+    echo "Unknown choice"
+    ;;  
 esac
