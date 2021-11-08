@@ -77,7 +77,7 @@ ca (){
     nsCertType              = objsign,email,server
 EOT
     
-    echo -e "$Gr Generating Self-sign the root CA$blink...$CO"
+    echo -e "$Gr Generating Self-sign the root CA...$CO"
     echo ""
     openssl req -new -x509 -days 3650 -config $CONFIG -key ca.key -out ca.crt
 
