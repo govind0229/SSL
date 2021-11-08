@@ -15,7 +15,7 @@ Ye='\033[0;33m'
 Cy='\033[0;36m'         
 
 # Variables  
-pass='govind'
+pass='selfgen'
 Null=$(2> /dev/null);
 SERIAL=`cat /dev/urandom | tr -dc '1-9' | fold -w 30 | head -n 1`
 AP=$(ip route | grep '^default' | grep -oP '(?<=dev )[^ ]*');
@@ -30,6 +30,7 @@ fail (){
 	rm -f ${HOST_IP}.*
 }
 
+# CA Certificate 
 ca (){
 
     echo "------------------------------------------------";
@@ -46,34 +47,34 @@ ca (){
     CONFIG="root-ca.conf"
     cat >$CONFIG <<EOT
     [ req ]
-    default_bits			= 4096
-    default_keyfile			= ca.key
-    distinguished_name		= req_distinguished_name
-    x509_extensions			= v3_ca
-    string_mask			= nombstr
-    req_extensions			= v3_req
+    default_bits			    = 4096
+    default_keyfile			    = ca.key
+    distinguished_name		    = req_distinguished_name
+    x509_extensions			    = v3_ca
+    string_mask			        = nombstr
+    req_extensions			    = v3_req
     [ req_distinguished_name ]
-    countryName			= Country Name (2 letter code)
-    countryName_default		= MY
-    countryName_min			= 2
-    countryName_max			= 2
-    stateOrProvinceName		= State or Province Name (full name)
+    countryName			        = Country Name (2 letter code)
+    countryName_default		    = MY
+    countryName_min			    = 2
+    countryName_max			    = 2
+    stateOrProvinceName		    = State or Province Name (full name)
     stateOrProvinceName_default	= Perak
-    localityName			= Locality Name (eg, city)
+    localityName			    = Locality Name (eg, city)
     localityName_default		= Sitiawan
-    0.organizationName		= Organization Name (eg, company)
+    0.organizationName		    = Organization Name (eg, company)
     0.organizationName_default	= My Directory Sdn Bhd
     organizationalUnitName		= Organizational Unit Name (eg, section)
     organizationalUnitName_default	= Certification Services Division
-    commonName			= Common Name (eg, MD Root CA)
+    commonName			        = Common Name (eg, MD Root CA)
     commonName_max			= 64
     emailAddress			= Email Address
     emailAddress_max		= 40
     [ v3_ca ]
-    basicConstraints		= critical,CA:true
+    basicConstraints		    = critical,CA:true
     subjectKeyIdentifier		= hash
     [ v3_req ]
-    nsCertType			= objsign,email,server
+    nsCertType              = objsign,email,server
 EOT
     
     echo -e "$Gr Generating Self-sign the root CA$blink...$CO"
@@ -88,6 +89,7 @@ EOT
     echo ""
 }
 
+# server certificate 
 server () {
     clear
     echo "--------------------------------------------";
@@ -229,3 +231,14 @@ EOT
             exit 1	    
     fi
 }
+
+echo "Enter certificate type(ca/server) "
+read ENV
+case $ENV in  
+    CA|ca)  
+        ca  
+        ;;  
+    Server|server)  
+        server  
+        ;;  
+esac
