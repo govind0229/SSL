@@ -18,20 +18,20 @@ Cy='\033[0;36m'
 pass='selfgen'
 Null=$(2> /dev/null);
 SERIAL=`cat /dev/urandom | tr -dc '1-9' | fold -w 30 | head -n 1`
-AP=$(ip route | grep '^default' | grep -oP '(?<=dev )[^ ]*');
-HOST_IP=$(ip a s $AP ${Null}| grep -v "127.0.0.1" | awk '{ if ($1=="inet") { print $2 }}' | sed 's/\/.*//');
+HOST_IP=$(ip route get 1 | sed 's/^.*src \([^ ]*\).*$/\1/;q')
+PUBIP=$(curl https://ifconfig.me/)
 
-temclear(){
+function temclear(){
     rm -f SSL.config
     rm -rf SSL.db.*
     rm -f ${CONFIG}
 }
-fail (){
-	rm -f ${HOST_IP}.*
+function fail(){
+	rm -f ${@}.*
 }
 
-# CA Certificate 
-ca (){
+# CA Certificate
+function ca(){
 
     echo "------------------------------------------------";
     echo -e "${R}\tOpenSSL self-signed CA certificate${CO}";
@@ -90,17 +90,18 @@ EOT
 }
 
 # server certificate 
-server () {
+function server(){
+
     clear
     echo "--------------------------------------------";
     echo -e "${R}\tOpenSSL self-signed certificate${CO}";
     echo "--------------------------------------------";
 
         $DEBUG && echo "${SERIAL}"
-        $DEBUG && echo -e "${Cy}Server IP${CO} ${HOST_IP}";
+        $DEBUG && echo -e "${Cy}Server IP${CO} ${@}";
 
-        if [ ! -f ${HOST_IP}.key ]; then
-            openssl genrsa -out $HOST_IP.key 4096 &> /dev/null
+        if [ ! -f ${@}.key ]; then
+            openssl genrsa -out $@.key 4096 &> /dev/null
         fi
 
     # Fill the necessary certificate data
@@ -136,9 +137,9 @@ server () {
     subjectKeyIdentifier		= hash
 EOT
 
-    if [ ! -f ${HOST_IP}.csr ]; then
+    if [ ! -f ${@}.csr ]; then
 
-        CSR=$(openssl req -new  -subj "/C=IN/ST=Mumbai/L=Mumbai/O=Flexydial/OU=Solutions/CN=${HOST_IP}/emailAddress=help@flexydial.com" -config $CONFIG -key $HOST_IP.key -out $HOST_IP.csr &> /dev/null)
+        CSR=$(openssl req -new  -subj "/C=IN/ST=Mumbai/L=Mumbai/O=Flexydial/OU=Solutions/CN=${@}/emailAddress=help@flexydial.com" -config $CONFIG -key $@.key -out $@.csr &> /dev/null)
 
         if [ $? -ne 0 ]; then 
             $DEBUG && echo -e "${R} Error CSR ${CO}"
@@ -201,12 +202,12 @@ EOT
 
     [ subject_alt_names ]
     DNS.1 			= *.google.com
-    IP.1			= ${HOST_IP}
+    IP.1			= ${@}
     IP.2			= 127.0.0.1
     IP.3			= ::1
 EOT
 
-    Certi=$(openssl ca -config SSL.config -batch -passin pass:${pass} -out ${HOST_IP}.crt -infiles ${HOST_IP}.csr 2> /dev/null)
+    Certi=$(openssl ca -config SSL.config -batch -passin pass:${pass} -out ${@}.crt -infiles ${@}.csr 2> /dev/null)
 
     if [ $? -ne 0 ]; then
         $DEBUG && echo -e "${R} Error Server Cert ${CO}"
@@ -214,7 +215,7 @@ EOT
         exit 1
     fi
 
-    Verify=$(openssl verify -check_ss_sig -trusted_first -verify_ip ${HOST_IP} -CAfile ca.crt ${HOST_IP}.crt | awk '{print $2}')
+    Verify=$(openssl verify -check_ss_sig -trusted_first -verify_ip ${@} -CAfile ca.crt ${@}.crt | awk '{print $2}')
 
     if [ $? -ne 0 ]; then
         $DEBUG && echo -e "${R} Error Cert Verify ${CO}"
@@ -232,14 +233,21 @@ EOT
     fi
 }
 
-echo "Enter certificate type(ca/server) "
-read ENV
+read -p "Enter certificate type(ca/server):"    ENV
 case $ENV in  
     CA|ca)  
-        ca  
+        ca
         ;;  
-    Server|server)  
-        server  
+    Server|server)
+        read -p "Enter your installation type(cloud/premise):"  TYPE
+        case $TYPE in
+            cloud|Cloud) 
+            server $PUBIP
+            ;;
+            premise|premise)
+            server $HOST_IP
+            ;;
+        esac
         ;;
     *)
     echo "Unknown choice"
