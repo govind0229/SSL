@@ -71,8 +71,8 @@ function ca(){
     emailAddress			= Email Address
     emailAddress_max		= 40
     [ v3_ca ]
-    basicConstraints		    = critical,CA:true
-    subjectKeyIdentifier		= hash
+    basicConstraints		= critical,CA:true
+    subjectKeyIdentifier	= hash
     [ v3_req ]
     nsCertType              = objsign,email,server
 EOT
@@ -111,35 +111,35 @@ function server(){
     default_bits			= 4096
     default_keyfile			= server.key
     distinguished_name		= req_distinguished_name
-    string_mask			= nombstr
+    string_mask			    = nombstr
     req_extensions			= v3_req
     [ req_distinguished_name ]
-    countryName			= Country Name (2 letter code)
+    countryName			    = Country Name (2 letter code)
     countryName_default		= MY
     countryName_min			= 2
     countryName_max			= 2
     stateOrProvinceName		= State or Province Name (full name)
     stateOrProvinceName_default	= Perak
     localityName			= Locality Name (eg, city)
-    localityName_default		= Sitiawan
+    localityName_default	= Sitiawan
     0.organizationName		= Organization Name (eg, company)
     0.organizationName_default	= My Directory Sdn Bhd
-    organizationalUnitName		= Organizational Unit Name (eg, section)
+    organizationalUnitName	    = Organizational Unit Name (eg, section)
     organizationalUnitName_default	= Secure Web Server
-    commonName			= Common Name (eg, www.domain.com)
+    commonName			    = Common Name (eg, www.domain.com)
     commonName_max			= 64
     emailAddress			= Email Address
     emailAddress_max		= 40
     [ v3_req ]
-    nsCertType			= server
-    keyUsage 			= digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+    nsCertType			    = server
+    keyUsage 			    = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
     basicConstraints		= CA:false
-    subjectKeyIdentifier		= hash
+    subjectKeyIdentifier	= hash
 EOT
 
     if [ ! -f ${@}.csr ]; then
 
-        CSR=$(openssl req -new  -subj "/C=IN/ST=Mumbai/L=Mumbai/O=Flexydial/OU=Solutions/CN=${@}/emailAddress=help@flexydial.com" -config $CONFIG -key $@.key -out $@.csr &> /dev/null)
+        CSR=$(openssl req -new  -subj "/C=IN/ST=Mumbai/L=Mumbai/O=XYZ/OU=Solutions/CN=${@}/emailAddress=default@default.com" -config $CONFIG -key $@.key -out $@.csr &> /dev/null)
 
         if [ $? -ne 0 ]; then 
             $DEBUG && echo -e "${R} Error CSR ${CO}"
@@ -153,8 +153,8 @@ EOT
             exit 1
         fi
     fi
-    # Make sure environment exists
 
+    # Make sure environment exists
     if [ ! -d SSL.db.certs ]; then
         mkdir SSL.db.certs
     fi
@@ -233,6 +233,7 @@ EOT
     fi
 }
 
+# Case condition for CA and Server Certificate.
 read -p "Enter certificate type(ca/server):"    ENV
 case $ENV in  
     CA|ca)  
