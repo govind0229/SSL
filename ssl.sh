@@ -168,6 +168,7 @@ EOT
     fi
 
     #multiple IP addresses
+    read -p "Enter hostname:" hostname
     read -p "Enter IP1:"  IP1
     read -p "Enter IP2:"  IP2
     read -p "Enter IP3:"  IP3
@@ -211,7 +212,7 @@ EOT
     subjectAltName		    = @alt_names
 
     [ alt_names ]
-    DNS.1 	= 
+    DNS.1 	= ${hostname}
     DNS.2   = localhost
     IP.1	= ${IP1}
     IP.2	= ${IP2}
