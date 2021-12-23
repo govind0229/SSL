@@ -106,46 +106,58 @@ if [ ! -f buzzworks.db.index ]; then
     cp /dev/null buzzworks.db.index
 fi
 
-# Create the CA requirement to sign the cert
-cat >buzzworks.config <<EOT
-[ ca ]
-default_ca              = default_CA
-[ default_CA ]
-dir                     = .
-certs                   = \$dir
-new_certs_dir           = \$dir/buzzworks.db.certs
-database                = \$dir/buzzworks.db.index
-serial                  = \$dir/buzzworks.db.buzzworks.serial
-certificate             = \$dir/buzzworks.crt
-private_key             = \$dir/buzzworks.key
-default_days            = 1825
-default_crl_days        = 30
-default_md              = sha256
-preserve                = no
-x509_extensions	    	= server_cert
-policy                  = policy_anything
-[ policy_anything ]
-countryName             = optional
-stateOrProvinceName     = optional
-localityName            = optional
-organizationName        = optional
-organizationalUnitName  = optional
-commonName              = supplied
-emailAddress            = optional
-[ server_cert ]
-basicConstraints	    = CA:FALSE
-subjectKeyIdentifier 	= hash
-authorityKeyIdentifier	= keyid,issuer
-keyUsage 		        = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
-subjectAltName		    = @subject_alt_names
+    #multiple IP addresses
+    read -p "Enter hostname:" hostname
+    read -p "Enter IP1:"  IP1
+    read -p "Enter IP2:"  IP2
+    read -p "Enter IP3:"  IP3
 
-[ subject_alt_names ]
-DNS.1 			= *.google.com
-IP.1			= ${HOST_IP}
-IP.2			= 127.0.0.1
-IP.3			= ::1
+    # Create the CA requirement to sign the cert
+    cat >SSL.config <<EOT
+    [ ca ]
+    default_ca              = default_CA
+    [ default_CA ]
+    dir                     = .
+    certs                   = \$dir
+    new_certs_dir           = \$dir/SSL.db.certs
+    database                = \$dir/SSL.db.index
+    serial                  = \$dir/SSL.db.SSL.serial
+    certificate             = \$dir/ca.crt
+    private_key             = \$dir/ca.key
+    default_days            = 1825
+    default_crl_days        = 30
+    default_md              = sha256
+    preserve                = no
+    x509_extensions	    	= server_cert
+    policy                  = policy_anything
+    
+    [ policy_anything ]
+    countryName             = optional
+    stateOrProvinceName     = optional
+    localityName            = optional
+    organizationName        = optional
+    organizationalUnitName  = optional
+    commonName              = supplied
+    emailAddress            = optional
+    
+    [ server_cert ]
+    basicConstraints	    = CA:FALSE
+    subjectKeyIdentifier 	= hash
+    authorityKeyIdentifier	= keyid,issuer
+    keyUsage 		        = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+    req_extensions          = req_ext
+
+    [ req_ext ]
+    subjectAltName		    = @alt_names
+
+    [ alt_names ]
+    DNS.1 	= ${hostname}
+    DNS.2   = localhost
+    IP.1	= ${IP1}
+    IP.2	= ${IP2}
+    IP.3	= ${IP3}
+    IP.4    = 127.0.0.1
 EOT
-
 Certi=$(openssl ca -config buzzworks.config -batch -passin pass:${pass} -out ${HOST_IP}.crt -infiles ${HOST_IP}.csr 2> /dev/null)
 
 if [ $? -ne 0 ]; then
