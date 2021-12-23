@@ -167,6 +167,11 @@ EOT
         cp /dev/null SSL.db.index
     fi
 
+    #multiple IP addresses
+    read -p "Enter IP1:"  IP1
+    read -p "Enter IP2:"  IP2
+    read -p "Enter IP3:"  IP3
+
     # Create the CA requirement to sign the cert
     cat >SSL.config <<EOT
     [ ca ]
@@ -185,6 +190,7 @@ EOT
     preserve                = no
     x509_extensions	    	= server_cert
     policy                  = policy_anything
+    
     [ policy_anything ]
     countryName             = optional
     stateOrProvinceName     = optional
@@ -193,18 +199,24 @@ EOT
     organizationalUnitName  = optional
     commonName              = supplied
     emailAddress            = optional
+    
     [ server_cert ]
     basicConstraints	    = CA:FALSE
     subjectKeyIdentifier 	= hash
     authorityKeyIdentifier	= keyid,issuer
     keyUsage 		        = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
-    subjectAltName		    = @subject_alt_names
+    req_extensions          = req_ext
 
-    [ subject_alt_names ]
-    DNS.1 			= *.google.com
-    IP.1			= ${@}
-    IP.2			= 127.0.0.1
-    IP.3			= ::1
+    [ req_ext ]
+    subjectAltName		    = @alt_names
+
+    [ alt_names ]
+    DNS.1 	= 
+    DNS.2   = localhost
+    IP.1	= ${IP1}
+    IP.2	= ${IP2}
+    IP.3	= ${IP3}
+    IP.4    = 127.0.0.1
 EOT
 
     Certi=$(openssl ca -config SSL.config -batch -passin pass:${pass} -out ${@}.crt -infiles ${@}.csr 2> /dev/null)
