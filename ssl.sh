@@ -169,9 +169,6 @@ EOT
 
     #multiple IP addresses
     read -p "Enter hostname:" hostname
-    read -p "Enter IP1:"  IP1
-    read -p "Enter IP2:"  IP2
-    read -p "Enter IP3:"  IP3
 
     # Create the CA requirement to sign the cert
     cat >SSL.config <<EOT
@@ -214,12 +211,28 @@ EOT
     [ alt_names ]
     DNS.1 	= ${hostname}
     DNS.2   = localhost
-    IP.1	= ${IP1}
-    IP.2	= ${IP2}
-    IP.3	= ${IP3}
-    IP.4    = 127.0.0.1
+    IP  	= ${IP1}
 EOT
 
+    #multiple IP addresses
+    function milti(){
+        read -p "How Many Multiple IP:" values
+        for ((i=1; i<=${values}; ++i));
+        do
+            read -p "ENTER IP${i}: " IP
+            echo "IP.${i}       = ${IP}" >> buzzworks.config
+        done
+    }
+    read -e -p "Do you like add miltiple IPs? [Y/N|y/n]: " choice
+    case $choice in
+        [Yy]*)
+        milti
+        ;;
+        [Nn]*)
+        ;;
+        * ) echo "Please answer Y/y or N/n."; temclear; fail; exit 0;;
+    esac
+    
     Certi=$(openssl ca -config SSL.config -batch -passin pass:${pass} -out ${@}.crt -infiles ${@}.csr 2> /dev/null)
 
     if [ $? -ne 0 ]; then
