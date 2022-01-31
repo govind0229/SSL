@@ -2,7 +2,7 @@
 #############################################################################
 #   Script  :   OpenSSL self-signed certificate            	                #
 #   Use     :   Create Self-signed CA Server Certificate                    #
-#   Author  :   SSL <Govind_sharma@live.com>                     #
+#   Author  :   SSL <Govind_sharma@live.com>                                #
 #############################################################################
 set -o nounset
 DEBUG=false
@@ -19,7 +19,7 @@ pass='selfgen'
 Null=$(2> /dev/null);
 SERIAL=`cat /dev/urandom | tr -dc '1-9' | fold -w 30 | head -n 1`
 HOST_IP=$(ip route get 1 | sed 's/^.*src \([^ ]*\).*$/\1/;q')
-PUBIP=$(curl https://ifconfig.me/)
+PUBIP=$(curl https://ifconfig.me/ &> /dev/null)
 
 function temclear(){
     rm -f SSL.config
@@ -220,9 +220,10 @@ EOT
         for ((i=1; i<=${values}; ++i));
         do
             read -p "ENTER IP${i}: " IP
-            echo "IP.${i}       = ${IP}" >> buzzworks.config
+            echo "IP.${i}       = ${IP}" >> SSL.config
         done
     }
+    
     read -e -p "Do you like add miltiple IPs? [Y/N|y/n]: " choice
     case $choice in
         [Yy]*)
@@ -232,7 +233,7 @@ EOT
         ;;
         * ) echo "Please answer Y/y or N/n."; temclear; fail; exit 0;;
     esac
-    
+
     Certi=$(openssl ca -config SSL.config -batch -passin pass:${pass} -out ${@}.crt -infiles ${@}.csr 2> /dev/null)
 
     if [ $? -ne 0 ]; then
