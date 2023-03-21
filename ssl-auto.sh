@@ -77,7 +77,7 @@ function ca(){
 EOT
     
     echo -e "${Cy}Generating CA Authority Certificate...$CO"
-    openssl req -new -x509 -days 3650 -subj "/C=IN/ST=DELHI NCR/L=NOIDA/O=AUTOMATION/OU=Solutions/CN=CA-Authority/emailAddress=govind.kumar@infinitylabs.in" -config  $CONFIG -key ca.key -out ca.crt --passin pass:${pass} 2>/dev/null
+    openssl req -new -x509 -days 3650 -subj "/C=IN/ST=Delhi/L=Noida NCR/O=Infinity Labs/OU=Automation/CN=CA Authority/emailAddress=govind.kumar@infinitylabs.in" -config  $CONFIG -key ca.key -out ca.crt --passin pass:${pass} 2>/dev/null
 
     rm -f $CONFIG
     echo ""
@@ -150,7 +150,7 @@ EOT
 
     if [ ! -f ${@}.csr ]; then
 
-        CSR=$(openssl req -new  -subj "/C=IN/ST=Mumbai/L=Mumbai/O=XYZ/OU=Solutions/CN=${@}/emailAddress=default@default.com" -config $CONFIG -key $@.key -out $@.csr &> /dev/null)
+        CSR=$(openssl req -new  -subj "/C=IN/ST=Delhi/L=Noida NCR/O=Infinity Labs/OU=Automation/CN=${@}/emailAddress=default@default.com" -config $CONFIG -key $@.key -out $@.csr &> /dev/null)
 
         if [ $? -ne 0 ]; then 
             $DEBUG && echo -e "${R} Error CSR ${CO}"
