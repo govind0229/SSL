@@ -240,7 +240,7 @@ EOT
     fi
 
     if [[ ! -e "dhparam.pem" ]]; then
-        sudo openssl dhparam -dsaparam -out dhparam.pem 4096
+        sudo openssl dhparam -dsaparam -out dhparam.pem 4096 2>/dev/null
         cat dhparam.pem |sudo tee -a ${@}.crt
     fi
 
