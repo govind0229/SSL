@@ -253,7 +253,7 @@ EOT
     # Deployment certificates.
     if [ -h "/etc/pki/tls/certs/localhost-chain.crt" ]; then
         sudo unlink /etc/pki/tls/certs/localhost-chain.crt
-        sudo ln -s ${@}.csr /etc/pki/tls/certs/localhost-chain.crt
+        sudo ln -s `pwd`/${@}.csr /etc/pki/tls/certs/localhost-chain.crt
     fi
     sudo cp -f ${@}.crt /etc/pki/tls/certs/localhost.crt
     sudo cp -f ${@}.key /etc/pki/tls/private/localhost.key
