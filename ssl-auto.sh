@@ -92,7 +92,7 @@ EOT
 # server certificate 
 function server(){
 
-    clear
+    #clear
     echo "--------------------------------------------";
     echo -e "${R}\tOpenSSL self-signed certificate${CO}";
     echo "--------------------------------------------";
