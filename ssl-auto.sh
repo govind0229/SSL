@@ -33,14 +33,13 @@ function fail(){
 # CA Certificate
 function ca(){
 
-    echo "------------------------------------------------";
-    echo -e "${R}\tOpenSSL self-signed CA certificate${CO}";
-    echo "------------------------------------------------";
+    # echo "------------------------------------------------";
+    # echo -e "${R}\tOpenSSL self-signed CA certificate${CO}";
+    # echo "------------------------------------------------";
 
     if [ ! -f ca.key ]; then
-        echo "";echo -e "$Gr No Root CA key round. Generating CA.key file$CO"
-        openssl genrsa -des3 -out ca.key -passout pass:${pass} 4096 
-        echo ""
+        echo "";echo -e "${Cy}No Root CA key round. Generating CA Key...$CO"
+        openssl genrsa -des3 -out ca.key -passout pass:${pass} 4096 2>/dev/null
     fi
 
     # Self-sign it.
@@ -77,15 +76,15 @@ function ca(){
     nsCertType              = objsign,email,server
 EOT
     
-    echo -e "$Gr Generating Self-sign the root CA...$CO"
-    echo ""
-    openssl req -new -x509 -days 3650 -subj "/C=IN/ST=DELHI NCR/L=NOIDA/O=AUTOMATION/OU=Solutions/CN=CA-Authority/emailAddress=govind.kumar@infinitylabs.in" -config  $CONFIG -key ca.key -out ca.crt --passin pass:${pass}
+    echo -e "${Cy}Generating CA Authority Certificate...$CO"
+    openssl req -new -x509 -days 3650 -subj "/C=IN/ST=DELHI NCR/L=NOIDA/O=AUTOMATION/OU=Solutions/CN=CA-Authority/emailAddress=govind.kumar@infinitylabs.in" -config  $CONFIG -key ca.key -out ca.crt --passin pass:${pass} 2>/dev/null
 
     rm -f $CONFIG
-    echo -e "$Gr You Have Successfully Generated CA Certificates$CO"
     echo ""
-    echo -e "CA Key         = $Gr ca.key$CO"
-    echo -e "CA Certificate = $Gr ca.crt$CO"
+    echo -e "${Gr}Successfully Generated CA Certificates$CO"
+    echo ""
+    echo -e "CA Key\t\t\t\t[$Gr OK$CO ]"
+    echo -e "CA Certificate\t\t\t[$Gr OK$CO ]"
     echo ""
 }
 
@@ -94,8 +93,15 @@ function server(){
 
     #clear
     echo "--------------------------------------------";
-    echo -e "${R}\tOpenSSL self-signed certificate${CO}";
+    echo -e "${R}\tOpenSSL Self-signed Certificate${CO}";
     echo "--------------------------------------------";
+
+        if [ -f "ca.crt" ]; then
+            echo ""
+            echo -e "CA Certificate\t\t\t[$Gr OK$CO ]"
+        else
+            ca
+        fi
 
         $DEBUG && echo "${SERIAL}"
         $DEBUG && echo -e "${Cy}Server IP${CO} ${@}";
@@ -231,17 +237,17 @@ EOT
     fi
 
     if [ $? -eq 0 ]; then
-            echo;echo -e "${Cy}Certificate${CO}\t\t[ ${Gr}${Verify}${CO} ]";echo;
+            echo;echo -e "Server Certificate\t\t[ ${Gr}${Verify}${CO} ]";echo;
             temclear   
         else 
-            echo;echo -e "${Cy}Certificate${CO}\t\t[ ${R}Failed${CO} ]";echo;
+            echo;echo -e "Server Certificate\t\t[ ${R}Failed${CO} ]";echo;
             temclear; fail;
             exit 1	    
     fi
 
     if [[ ! -e "dhparam.pem" ]]; then
         sudo openssl dhparam -dsaparam -out dhparam.pem 4096 2>/dev/null
-        cat dhparam.pem |sudo tee -a ${@}.crt
+        cat dhparam.pem |sudo tee -a ${@}.crt >/dev/null
     fi
 
     # Deployment certificates.
@@ -253,12 +259,6 @@ EOT
     sudo cp -f ${@}.key /etc/pki/tls/private/localhost.key
     sudo cp -f dhparam.pem /etc/pki/tls/certs/dhparam.pem   
 }
-
-if [ -f "ca.crt" ]; then
-    echo "File \"ca.crt\" exists"
-else
-    ca
-fi
 
 # Case condition for CA and Server Certificate.
 TYPE=$@
